@@ -1,0 +1,46 @@
+### Test Route
+GET http://localhost:8081
+
+### Create a User
+POST http://localhost:8081/auth/register
+Content-Type: application/json
+
+{
+    "firstName": "Susan",
+    "lastName": "Kanana",
+    "email": "suzzannekans@gmail..com",
+    "password": "mypassword123"
+}
+
+### Create a Todo
+POST http://localhost:8081/todo
+Content-Type: application/json
+
+{
+    "todoName": "Watch a movie",
+    "description": "A fun commedy",
+    "userId": 2,
+    "dueDate": "2025-10-02",
+    "isCompleted": false
+}
+
+### Get All Todos
+GET http://localhost:8081/todo
+
+### Get a Todo by ID
+GET http://localhost:8081/todo/3
+
+### Update a Todo
+PUT http://localhost:8081/todo/6
+Content-Type: application/json
+
+{
+    "todoName": "Study Node.js Advanced",
+    "description": "Complete the advanced Node.js course on Udemy",
+    "userId": 2,
+    "dueDate": "2025-09-15",
+    "isCompleted": false
+}
+
+### Delete a Todo
+DELETE http://localhost:8081/todo/3
