@@ -10,6 +10,8 @@ import {
   saveVerificationCode,
   verifyEmailCodeService,
   logoutUserService,
+  deleteUserService
+  
 } from "./auth.service";
 
 import { sendEmail } from "../../src/mailer/mailer";
@@ -29,7 +31,7 @@ export const createUserController = async (req: Request, res: Response) => {
     }
 
     // Hash password
-    const hashedPassword = bcrypt.hashSync(user.password, 10);
+    const hashedPassword = await bcrypt.hash(user.password, 10);
     user.password = hashedPassword;
     user.isVerified = false;
 
@@ -79,10 +81,10 @@ export const verifyUserController = async (req: Request, res: Response) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    const isValid = await verifyEmailCodeService(email, code);
+    const result = await verifyEmailCodeService(email, code);
 
-    if (!isValid) {
-      return res.status(400).json({ message: "Invalid or expired verification code" });
+    if (!result.success) {
+      return res.status(400).json({ message: result.message || "Invalid or expired verification code" });
     }
 
     // Send success email
@@ -181,6 +183,19 @@ export const getAllUsersController = async (req: Request, res: Response) => {
   try {
     const users = await getAllUsersService();
     return res.status(200).json(users);
+  } catch (error: any) {
+    return res.status(500).json({ error: error.message });
+  }
+};
+
+// DELETE TODO
+export const deleteUserController = async (req: Request, res: Response) => {
+  try {
+    const id = parseInt(Array.isArray(req.params.id) ? req.params.id[0] : req.params.id);
+    if (isNaN(id)) return res.status(400).json({ message: "Invalid ID" });
+
+    await deleteUserService(id);
+    return res.status(204).json({ message: "User removed successfully" });
   } catch (error: any) {
     return res.status(500).json({ error: error.message });
   }

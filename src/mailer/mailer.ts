@@ -37,6 +37,8 @@ export const sendEmail = async (
             return 'Email server error';
         }
     } catch (error: any) {
-        return JSON.stringify(error.message, null, 500);
+        console.error("sendEmail error:", error); // log immediately
+        throw error; // re-throw so controller catches it
     }
+    
 };

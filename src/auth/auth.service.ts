@@ -1,6 +1,7 @@
 import db from "../drizzle/db";
 import { UsersTable, TIUser } from "../drizzle/schema";
 import { sql } from "drizzle-orm";
+import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import redisClient from "../redis/client";
 import {
@@ -20,12 +21,31 @@ import {
   setResendCooldown,
 } from "./verification.cooldown";
 
+/* ------------------------------------------------------------------
+   Cache helpers
+-------------------------------------------------------------------*/
+const USERS_CACHE_KEY = "users:all";
+
+export const getUserCache = async () => {
+  const cached = await redisClient.get(USERS_CACHE_KEY);
+  if (cached) return JSON.parse(cached);
+  return null;
+};
+
+export const setUserCache = async (users: any) => {
+  await redisClient.set(USERS_CACHE_KEY, JSON.stringify(users), "EX", 300); // 5 mins
+};
+
+export const invalidateUserCache = async () => {
+  await redisClient.del(USERS_CACHE_KEY);
+};
 
 /* ------------------------------------------------------------------
    CREATE USER
 -------------------------------------------------------------------*/
 export const createUserService = async (user: TIUser) => {
   await db.insert(UsersTable).values(user);
+  await invalidateUserCache();
   return "User created successfully";
 };
 
@@ -58,9 +78,10 @@ export const loginUserService = async (email: string, password: string) => {
     where: sql`${UsersTable.email} = ${email}`,
   });
 
-  if (!user) return null;
-  if (user.password !== password) return null;
 
+  if (!user) return null;
+  const isPasswordValid = await bcrypt.compare(password, user.password);
+  if (!isPasswordValid) return null;
   const token = jwt.sign(
     {
       id: user.id,
@@ -119,6 +140,8 @@ export const saveVerificationCode = async (
       message: "Please wait before requesting another code",
     };
   }
+   // Delete any previous code (optional safety)
+  await redisClient.del(`verify:${email}`);
 
   // Save the verification code in Redis for 10 minutes
   await redisClient.set(`verify:${email}`, code, "EX", 600); // 10 mins
@@ -140,6 +163,8 @@ export const verifyEmailCodeService = async (
   }
 
   const storedCode = await redisClient.get(`verify:${email}`);
+  console.log("storedCode from Redis:", storedCode, "code provided:", code); // DEBUG
+
 
   await incrementVerificationAttempts(email);
 
@@ -153,6 +178,7 @@ export const verifyEmailCodeService = async (
     .set({ isVerified: true })
     .where(sql`${UsersTable.email} = ${email}`);
 
+  // Delete the code immediately to prevent reuse
   await redisClient.del(`verify:${email}`);
   await resetVerificationAttempts(email);
 
@@ -163,7 +189,13 @@ export const verifyEmailCodeService = async (
    GET ALL USERS (ADMIN)
 -------------------------------------------------------------------*/
 export const getAllUsersService = async () => {
-  return await db.query.UsersTable.findMany({
+  const cachedUsers = await getUserCache();
+  if (cachedUsers) {
+    console.log("CACHE HIT: returning users from Redis");
+    return cachedUsers;
+  }
+
+  const users = await db.query.UsersTable.findMany({
     columns: {
       id: true,
       firstName: true,
@@ -173,4 +205,13 @@ export const getAllUsersService = async () => {
       isVerified: true,
     },
   });
+  await setUserCache(users);
+  return users;
+};
+
+// Delete a user
+export const deleteUserService = async (id: number) => {
+  await db.delete(UsersTable).where(sql`${UsersTable.id} = ${id}`);
+  await invalidateUserCache();
+  return "User removed successfully";
 };
