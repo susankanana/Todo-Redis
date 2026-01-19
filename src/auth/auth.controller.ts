@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { Request, Response } from "express"; 
 import bcrypt from "bcryptjs";
 import "dotenv/config";
 
@@ -11,11 +11,10 @@ import {
   verifyEmailCodeService,
   logoutUserService,
   deleteUserService
-  
 } from "./auth.service";
 
-import { sendEmail } from "../../src/mailer/mailer";
-
+// Import the RabbitMQ producer
+import { enqueueEmail } from "../../src/mailer/emailProducer";
 
 /* ------------------------------------------------------------------
    CREATE USER
@@ -43,23 +42,19 @@ export const createUserController = async (req: Request, res: Response) => {
     // Save verification code in Redis
     await saveVerificationCode(user.email, verificationCode);
 
-    // Send verification email
-    try {
-      await sendEmail(
-        user.email,
-        "Verify your account",
-        `Hello ${user.lastName}, your verification code is: ${verificationCode}`,
-        `
+    // Enqueue verification email
+    enqueueEmail({
+      to: user.email,
+      subject: "Verify your account",
+      text: `Hello ${user.lastName}, your verification code is: ${verificationCode}`,
+      html: `
         <div>
           <h2>Hello ${user.lastName},</h2>
           <p>Your verification code is <strong>${verificationCode}</strong></p>
           <p>This code expires in 10 minutes.</p>
         </div>
-        `
-      );
-    } catch (emailError) {
-      console.error("Failed to send verification email:", emailError);
-    }
+      `,
+    });
 
     return res.status(201).json({
       message: "User created. Verification code sent to email",
@@ -87,23 +82,19 @@ export const verifyUserController = async (req: Request, res: Response) => {
       return res.status(400).json({ message: result.message || "Invalid or expired verification code" });
     }
 
-    // Send success email
-    try {
-      await sendEmail(
-        user.email,
-        "Account Verified Successfully",
-        `Hello ${user.lastName}, your account has been verified.`,
-        `
+    // Enqueue success email
+    enqueueEmail({
+      to: user.email,
+      subject: "Account Verified Successfully",
+      text: `Hello ${user.lastName}, your account has been verified.`,
+      html: `
         <div>
           <h2>Hello ${user.lastName},</h2>
           <p>Your account has been <strong>successfully verified</strong>.</p>
           <p>You can now log in.</p>
         </div>
-        `
-      );
-    } catch (error) {
-      console.error("Failed to send verification success email:", error);
-    }
+      `,
+    });
 
     return res.status(200).json({ message: "User verified successfully" });
   } catch (error: any) {
@@ -111,31 +102,33 @@ export const verifyUserController = async (req: Request, res: Response) => {
   }
 };
 
-// Controller for the "Resend Code" button
+/* ------------------------------------------------------------------
+   RESEND VERIFICATION CODE
+-------------------------------------------------------------------*/
 export const resendVerificationController = async (req: Request, res: Response) => {
   const { email } = req.body;
 
   const code = Math.floor(100000 + Math.random() * 900000).toString();
 
-  // Cooldown is enforced automatically for resends (isFirstSend defaults to false)
   const result = await saveVerificationCode(email, code);
 
   if (!result.success) {
     return res.status(429).json({ message: result.message });
   }
 
-  await sendEmail(
-    email,
-    "Verification Code",
-    `Your verification code is ${code}`,
-    `<p>Your verification code is <strong>${code}</strong></p>`
-  );
+  // Enqueue resend verification email
+  enqueueEmail({
+    to: email,
+    subject: "Verification Code",
+    text: `Your verification code is ${code}`,
+    html: `<p>Your verification code is <strong>${code}</strong></p>`,
+  });
 
   return res.json({ message: "Verification code resent" });
 };
 
 /* ------------------------------------------------------------------
-   LOGIN USER (JWT + REDIS SESSION)
+   LOGIN, LOGOUT, GET USERS, DELETE USER remain unchanged
 -------------------------------------------------------------------*/
 export const loginUserController = async (req: Request, res: Response) => {
   try {
@@ -156,10 +149,6 @@ export const loginUserController = async (req: Request, res: Response) => {
   }
 };
 
-
-/* ------------------------------------------------------------------
-   LOGOUT USER
--------------------------------------------------------------------*/
 export const logoutUserController = async (req: Request, res: Response) => {
   try {
     const userId = (req as any).user?.id;
@@ -176,9 +165,6 @@ export const logoutUserController = async (req: Request, res: Response) => {
   }
 };
 
-/* ------------------------------------------------------------------
-   GET ALL USERS (ADMIN)
--------------------------------------------------------------------*/
 export const getAllUsersController = async (req: Request, res: Response) => {
   try {
     const users = await getAllUsersService();
@@ -188,7 +174,6 @@ export const getAllUsersController = async (req: Request, res: Response) => {
   }
 };
 
-// DELETE TODO
 export const deleteUserController = async (req: Request, res: Response) => {
   try {
     const id = parseInt(Array.isArray(req.params.id) ? req.params.id[0] : req.params.id);

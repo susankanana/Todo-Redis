@@ -14,6 +14,9 @@ importers:
       '@types/express':
         specifier: ^5.0.2
         version: 5.0.6
+      amqplib:
+        specifier: ^0.10.9
+        version: 0.10.9
       bcryptjs:
         specifier: ^3.0.2
         version: 3.0.3
@@ -48,6 +51,9 @@ importers:
         specifier: ^7.1.1
         version: 7.4.0
     devDependencies:
+      '@types/amqplib':
+        specifier: ^0.10.8
+        version: 0.10.8
       '@types/cors':
         specifier: ^2.8.19
         version: 2.8.19
@@ -1134,6 +1140,9 @@ packages:
   '@tsconfig/node16@1.0.4':
     resolution: {integrity: sha512-vxhUy4J8lyeyinH7Azl1pdd43GJhZH/tP2weN8TntQblOY+A0XbT8DJk1/oCPuOOyg/Ja757rG0CgHcWC8OfMA==}
 
+  '@types/amqplib@0.10.8':
+    resolution: {integrity: sha512-vtDp8Pk1wsE/AuQ8/Rgtm6KUZYqcnTgNvEHwzCkX8rL7AGsC6zqAfKAAJhUZXFhM/Pp++tbnUHiam/8vVpPztA==}
+
   '@types/babel__core@7.20.5':
     resolution: {integrity: sha512-qoQprZvz5wQFJwMDqeseRXWv3rqMvhgpbXFfVyWhbx9X47POIA6i/+dXefEmZKoAgOaTdaIgNSMqMIU61yRyzA==}
 
@@ -1255,6 +1264,10 @@ packages:
   align-text@0.1.4:
     resolution: {integrity: sha512-GrTZLRpmp6wIC2ztrWW9MjjTgSKccffgFagbNDOX95/dcjEcYZibYTeaOntySQLcdw1ztBoFkviiUvTMbb9MYg==}
     engines: {node: '>=0.10.0'}
+
+  amqplib@0.10.9:
+    resolution: {integrity: sha512-jwSftI4QjS3mizvnSnOrPGYiUnm1vI2OP1iXeOUz5pb74Ua0nbf6nPyyTzuiCLEE3fMpaJORXh2K/TQ08H5xGA==}
+    engines: {node: '>=10'}
 
   ansi-align@2.0.0:
     resolution: {integrity: sha512-TdlOggdA/zURfMYa7ABC66j+oqfMew58KpJMbUlH3bcZP1b+cBHIHDDn5uH9INsxrHBPjsqM0tDB4jPTF/vgJA==}
@@ -1819,6 +1832,9 @@ packages:
 
   buffer-from@1.1.2:
     resolution: {integrity: sha512-E+XQCRwSbaaiChtv6k6Dwgc+bx+Bs6vuKJHHl5kox/BaKbhiXzqQOwK4cO22yElGp2OCmjwVhT3HmxgyPGnJfQ==}
+
+  buffer-more-ints@1.0.0:
+    resolution: {integrity: sha512-EMetuGFz5SLsT0QTnXzINh4Ksr+oo4i+UGTXEshiGCQWnsgSs7ZhJ8fzlwQ+OzEMs0MpDAMr1hxnblp5a4vcHg==}
 
   bytes@2.5.0:
     resolution: {integrity: sha512-hkQtlCqf2f67v+GDlR9DImH1Bu/DxA/yNR7EmnbxCgxYgm4u7rLTJw8LYJdttHOl+H+++Fv0SQF7PgXAtqkfVg==}
@@ -4165,6 +4181,9 @@ packages:
     resolution: {integrity: sha512-4EK3+xJl8Ts67nLYNwqw/dsFVnCf+qR7RgXSK9jEEm9unao3njwMDdmsdvoKBKHzxd7tCYz5e5M+SnMjdtXGQQ==}
     engines: {node: '>=0.6'}
 
+  querystringify@2.2.0:
+    resolution: {integrity: sha512-FIqgj2EUvTa7R50u0rGsyTftzjYmv/a3hO345bZNrqabNqjtgiDMgmo4mkUjd+nzU5oF3dClKqFIPUKybUyqoQ==}
+
   question-cache@0.4.0:
     resolution: {integrity: sha512-QgX1mI/ZNBbG8M5gYfZQG/qxZRggP2Fk+WOqE/FKylmNwi5aWy6o1JSaojYrHT5JUtRdyG+wwVJSlTfW7UBmog==}
     engines: {node: '>=0.10.0'}
@@ -4289,6 +4308,9 @@ packages:
   require-directory@2.1.1:
     resolution: {integrity: sha512-fGxEI7+wsG9xrvdjsrlmL22OMTTiHRwAMroiEeMgq8gzoLC/PQr7RsRDSTLUg/bZAZtF+TVIkHc6/4RIKrui+Q==}
     engines: {node: '>=0.10.0'}
+
+  requires-port@1.0.0:
+    resolution: {integrity: sha512-KigOCHcocU3XODJxsu8i/j8T9tzT4adHiecwORRQ0ZZFcp7ahwXuRU1m+yuO90C5ZUyGeGfocHDI14M3L3yDAQ==}
 
   reserved@0.1.2:
     resolution: {integrity: sha512-/qO54MWj5L8WCBP9/UNe2iefJc+L9yETbH32xO/ft/EYPOTCR5k+azvDUgdCOKwZH8hXwPd0b8XBL78Nn2U69g==}
@@ -4912,6 +4934,9 @@ packages:
   url-parse-lax@1.0.0:
     resolution: {integrity: sha512-BVA4lR5PIviy2PMseNd2jbFQ+jwSwQGdJejf5ctd1rEXt0Ypd7yanUK9+lYechVlN5VaTJGsu2U/3MDDu6KgBA==}
     engines: {node: '>=0.10.0'}
+
+  url-parse@1.5.10:
+    resolution: {integrity: sha512-WypcfiRhfeUP9vvF0j6rw0J3hrWrw6iZv3+22h6iRMJ/8z1Tj6XfLP4DsUix5MhMPnXpiHDoKyoZ/bdCkwBCiQ==}
 
   use@1.1.2:
     resolution: {integrity: sha512-25Uw2xiVk0m2ySqmnu2GjOIROlImdXMRcpI6Cq7sZeG/zFZgFkSeo2+QwKNWJncfZOVS55eACoinvJ3EtprOBw==}
@@ -6351,6 +6376,10 @@ snapshots:
 
   '@tsconfig/node16@1.0.4': {}
 
+  '@types/amqplib@0.10.8':
+    dependencies:
+      '@types/node': 25.0.8
+
   '@types/babel__core@7.20.5':
     dependencies:
       '@babel/parser': 7.28.6
@@ -6510,6 +6539,11 @@ snapshots:
       kind-of: 3.2.2
       longest: 1.0.1
       repeat-string: 1.6.1
+
+  amqplib@0.10.9:
+    dependencies:
+      buffer-more-ints: 1.0.0
+      url-parse: 1.5.10
 
   ansi-align@2.0.0:
     dependencies:
@@ -7505,6 +7539,8 @@ snapshots:
   buffer-fill@1.0.0: {}
 
   buffer-from@1.1.2: {}
+
+  buffer-more-ints@1.0.0: {}
 
   bytes@2.5.0: {}
 
@@ -10427,6 +10463,8 @@ snapshots:
     dependencies:
       side-channel: 1.1.0
 
+  querystringify@2.2.0: {}
+
   question-cache@0.4.0:
     dependencies:
       arr-flatten: 1.1.0
@@ -10647,6 +10685,8 @@ snapshots:
       project-name: 0.2.6
 
   require-directory@2.1.1: {}
+
+  requires-port@1.0.0: {}
 
   reserved@0.1.2: {}
 
@@ -11368,6 +11408,11 @@ snapshots:
   url-parse-lax@1.0.0:
     dependencies:
       prepend-http: 1.0.4
+
+  url-parse@1.5.10:
+    dependencies:
+      querystringify: 2.2.0
+      requires-port: 1.0.0
 
   use@1.1.2:
     dependencies:
